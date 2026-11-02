@@ -1,0 +1,39 @@
+name: Roll back application image
+on:
+  workflow_dispatch:
+    inputs:
+      successful_run_id:
+        type: string
+        required: true
+        description: Previous successful apply or rollback run ID
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+concurrency:
+  group: inventory-dev
+  cancel-in-progress: false
+jobs:
+  rollback:
+    if: github.ref == 'refs/heads/main' && vars.LAB_READY == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      AWS_REGION: us-east-2
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      ARTIFACT_BUCKET: ${{ vars.ARTIFACT_BUCKET }}
+      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+      LEARNER_CIDR: ${{ vars.LEARNER_CIDR }}
+      AMI_ID: ${{ vars.AMI_ID }}
+      GH_TOKEN: ${{ github.token }}
+      SUCCESSFUL_RUN_ID: ${{ inputs.successful_run_id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6
+        with:
+          role-to-assume: ${{ vars.DEPLOY_ROLE_ARN }}
+          aws-region: us-east-2
+      - run: uv run python scripts/pipeline.py rollback "$SUCCESSFUL_RUN_ID"

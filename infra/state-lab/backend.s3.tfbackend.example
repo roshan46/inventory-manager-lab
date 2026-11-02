@@ -1,0 +1,5 @@
+bucket = "YOUR-UNIQUE-INVENTORY-STATE-BUCKET"
+key = "exercises/YOUR-LAB-ID/terraform.tfstate"
+region = "us-east-2"
+encrypt = true
+use_lockfile = true

@@ -1,0 +1,17 @@
+name: Setup lab tools
+description: Install the same Python and Terraform versions for all workflows
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+      with:
+        python-version: '3.13'
+    - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
+      with:
+        version: '0.9.5'
+    - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4
+      with:
+        terraform_version: '1.16.1'
+        terraform_wrapper: false
+    - shell: bash
+      run: uv sync --frozen --extra dev

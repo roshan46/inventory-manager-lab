@@ -1,0 +1,9 @@
+resource "terraform_data" "partial" {
+  input = "first"
+}
+resource "terraform_data" "failure" {
+  depends_on = [terraform_data.partial]
+  provisioner "local-exec" {
+    command = "this-command-intentionally-does-not-exist-inventory-lab"
+  }
+}

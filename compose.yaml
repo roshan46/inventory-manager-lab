@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: inventory
+      POSTGRES_USER: lab
+      POSTGRES_PASSWORD: local-only
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lab -d inventory"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    volumes:
+      - inventory-data:/var/lib/postgresql/data
+  app:
+    build: .
+    read_only: true
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=64m"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    ports: ["127.0.0.1:8001:8000"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://lab:local-only@db:5432/inventory
+      APP_SECRET: local-practice-only
+      APP_VERSION: local
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["sh", "-c", "flask --app app init-db && exec gunicorn --bind 0.0.0.0:8000 --workers 2 --worker-class gthread --threads 4 --access-logfile - 'app:create_app()'"]
+volumes:
+  inventory-data:

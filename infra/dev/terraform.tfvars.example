@@ -1,0 +1,4 @@
+learner_cidr = "203.0.113.10/32"
+ami_id = "ami-REPLACE_WITH_AL2023_X86_64"
+# Set false and name a final snapshot to retain database data on destroy.
+db_skip_final_snapshot = true

@@ -1,0 +1,10 @@
+.git
+.venv
+**/__pycache__
+.pytest_cache
+.env
+infra
+docs
+.plan
+.scratch
+instance

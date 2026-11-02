@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block content %}
+<p class="eyebrow">TERRAFORM1 · DOCKER · DELIVERY</p><h1>Know what is in stock.</h1><p>Create a product, record changes, and trace every adjustment.</p>
+<section><h2>Add a product</h2><form method="post" action="/products"><input type="hidden" name="csrf" value="{{ session.csrf }}"><label>Product code<input name="code" maxlength="40" required placeholder="WIDGET-01"></label><label>Name<input name="name" maxlength="120" required placeholder="Blue widget"></label><button>Create product</button></form></section>
+<section><h2>Inventory</h2><table><thead><tr><th>Code</th><th>Product</th><th>Available</th></tr></thead><tbody>{% for product in products %}<tr><td><a href="/products/{{ product.id }}">{{ product.code }}</a></td><td>{{ product.name }}</td><td>{{ product.stock }}</td></tr>{% else %}<tr><td colspan="3">Your inventory is empty. Add your first product above.</td></tr>{% endfor %}</tbody></table></section><footer>Release <code>{{ version }}</code></footer>
+{% endblock %}

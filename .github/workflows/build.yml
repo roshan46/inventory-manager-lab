@@ -1,0 +1,45 @@
+name: Build release
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  checks:
+    uses: ./.github/workflows/checks.yml
+  build:
+    needs: checks
+    if: vars.LAB_READY == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: inventory-build-${{ github.sha }}
+      cancel-in-progress: false
+    env:
+      AWS_REGION: us-east-2
+      ARTIFACT_BUCKET: ${{ vars.ARTIFACT_BUCKET }}
+      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6
+        with:
+          role-to-assume: ${{ vars.BUILD_ROLE_ARN }}
+          aws-region: us-east-2
+      - name: Push tested source as immutable release
+        shell: bash
+        run: |
+          set -euo pipefail
+          registry="${ECR_REPOSITORY%%/*}"
+          aws ecr get-login-password | docker login --username AWS --password-stdin "$registry"
+          docker build --platform linux/amd64 -t "$ECR_REPOSITORY:$GITHUB_SHA" .
+          docker push "$ECR_REPOSITORY:$GITHUB_SHA"
+          digest=$(aws ecr describe-images --repository-name inventory-manager --image-ids "imageTag=$GITHUB_SHA" --query 'imageDetails[0].imageDigest' --output text)
+          echo "IMAGE_DIGEST=$digest" >> "$GITHUB_ENV"
+          docker logout "$registry"
+      - run: uv run python scripts/pipeline.py release

@@ -8,10 +8,12 @@ resource "aws_db_subnet_group" "main" {
 resource "aws_db_parameter_group" "main" {
   name   = "${local.name_prefix}-postgres17"
   family = "postgres17"
+  # AWS records this default-valued parameter as pending-reboot. Matching
+  # that method avoids a perpetual plan while retaining force_ssl = 1.
   parameter {
     name         = "rds.force_ssl"
     value        = "1"
-    apply_method = "immediate"
+    apply_method = "pending-reboot"
   }
 }
 

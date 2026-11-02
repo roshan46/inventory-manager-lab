@@ -10,13 +10,14 @@ provider "aws" {
 }
 data "aws_caller_identity" "current" {}
 locals {
-  account     = data.aws_caller_identity.current.account_id
-  prefix      = "${var.project_name}-dev"
-  buckets     = { state = var.state_bucket_name, artifacts = var.artifact_bucket_name }
-  state_key   = "dev/inventory-manager/terraform.tfstate"
-  oidc        = var.existing_github_oidc_provider_arn != null ? var.existing_github_oidc_provider_arn : aws_iam_openid_connect_provider.github[0].arn
-  app_role    = "arn:aws:iam::${local.account}:role/${var.project_name}/application/${local.prefix}-app"
-  app_profile = "arn:aws:iam::${local.account}:instance-profile/${var.project_name}/application/${local.prefix}-app"
+  account        = data.aws_caller_identity.current.account_id
+  prefix         = "${var.project_name}-dev"
+  buckets        = { state = var.state_bucket_name, artifacts = var.artifact_bucket_name }
+  state_key      = "dev/inventory-manager/terraform.tfstate"
+  oidc           = var.existing_github_oidc_provider_arn != null ? var.existing_github_oidc_provider_arn : aws_iam_openid_connect_provider.github[0].arn
+  github_subject = var.github_oidc_subject != null ? var.github_oidc_subject : "repo:${var.github_repository}:ref:refs/heads/main"
+  app_role       = "arn:aws:iam::${local.account}:role/${var.project_name}/application/${local.prefix}-app"
+  app_profile    = "arn:aws:iam::${local.account}:instance-profile/${var.project_name}/application/${local.prefix}-app"
 }
 resource "aws_s3_bucket" "storage" {
   for_each      = local.buckets
@@ -66,7 +67,7 @@ resource "aws_iam_role" "github" {
   name     = "${var.project_name}-github-${each.key}"
   assume_role_policy = jsonencode({ Version = "2012-10-17", Statement = [{ Effect = "Allow", Action = "sts:AssumeRoleWithWebIdentity", Principal = { Federated = local.oidc }, Condition = { StringEquals = {
     "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-    "token.actions.githubusercontent.com:sub" = "repo:${var.github_repository}:ref:refs/heads/main"
+    "token.actions.githubusercontent.com:sub" = local.github_subject
   } } }] })
 }
 resource "aws_iam_role_policy" "state" {

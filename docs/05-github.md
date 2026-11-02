@@ -4,7 +4,7 @@
 
 Complete bootstrap. Publish **this directory as the repository root**, not the enclosing collection of labs. Initialize Git here if necessary, add the files, and push to a new main branch in the repository matching bootstrap's `github_repository`. Keep `.terraform.lock.hcl` files and `uv.lock` tracked. Do not publish real tfvars, state, plan files, `.env`, or `.scratch`.
 
-Workflows use [GitHub OIDC for AWS](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws), restricted to the configured repository's `main` branch. No long-lived AWS access-key secrets are needed. Protect main and require checks/reviews as supported by your repository. The baseline uses separate manual plan/apply dispatches and does not require GitHub environment approval features. If you add an environment, update the OIDC subject to match it before running.
+Workflows use [GitHub OIDC for AWS](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws), restricted to the configured repository's `main` branch. No long-lived AWS access-key secrets are needed. Protect main and require checks/reviews as supported by your repository. The baseline uses separate manual plan/apply dispatches and does not require GitHub environment approval features. If GitHub emits a customized subject, set its exact `sub` claim as `github_oidc_subject` in the bootstrap tfvars, review and apply the bootstrap trust-policy change, and then rerun authentication. If you add an environment, update the subject to match it before running.
 
 ## Configure repository variables
 

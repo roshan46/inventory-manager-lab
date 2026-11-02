@@ -15,6 +15,11 @@ variable "github_repository" {
     error_message = "Use OWNER/REPO."
   }
 }
+variable "github_oidc_subject" {
+  type        = string
+  default     = null
+  description = "Exact GitHub OIDC subject when the repository uses a custom subject template."
+}
 variable "existing_github_oidc_provider_arn" {
   type    = string
   default = null

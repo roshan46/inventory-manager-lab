@@ -1,5 +1,7 @@
 state_bucket_name = "YOUR-UNIQUE-INVENTORY-STATE-BUCKET"
 artifact_bucket_name = "YOUR-UNIQUE-INVENTORY-ARTIFACT-BUCKET"
 github_repository = "YOUR-OWNER/inventory-manager-lab"
+# Set this only when GitHub emits a customized OIDC subject.
+# github_oidc_subject = "repo:YOUR-OWNER@OWNER-ID/inventory-manager-lab@REPOSITORY-ID:ref:refs/heads/main"
 # Reuse an existing account-level GitHub provider, if present:
 # existing_github_oidc_provider_arn = "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"

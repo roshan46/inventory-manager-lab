@@ -31,3 +31,14 @@ run "bootstrap" {
     error_message = "Image builds must not read saved plans or Terraform state."
   }
 }
+
+run "custom_oidc_subject" {
+  command = plan
+  variables {
+    github_oidc_subject = "repo:owner@123/repo@456:ref:refs/heads/main"
+  }
+  assert {
+    condition     = strcontains(aws_iam_role.github["build"].assume_role_policy, "repo:owner@123/repo@456:ref:refs/heads/main")
+    error_message = "A configured custom GitHub OIDC subject must be used verbatim."
+  }
+}

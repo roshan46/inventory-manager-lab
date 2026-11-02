@@ -1,4 +1,4 @@
-# Inventory Manager — Terraform, state recovery, and Docker
+# Inventory Manager — Terraform, state recovery, and DockerA
 
 A working inventory app and a guided infrastructure lab. Start with containers on your laptop, deploy to AWS, then practice diagnosing and recovering Terraform state problems on isolated disposable resources.
 
